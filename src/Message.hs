@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Message (getMessages, getUuids, Uuid, Message, getInt, setFlow, getMetaString, excludeType, isType, isAfter, appendMessage, readMessages) where
+module Message (isProcessed, getMessages, getUuids, Uuid, Message, getInt, setFlow, getMetaString, excludeType, isType, isAfter, appendMessage, readMessages) where
 
 import Control.Exception (SomeException (SomeException), catch)
 import Data.Aeson as JSON (decode, encode)
@@ -62,6 +62,9 @@ getMetaString k e =
                 _ -> Nothing
             _ -> Nothing
         _ -> Nothing
+
+isProcessed :: Message -> Bool
+isProcessed msg = maybe False ((==) "Processed" . T.unpack) (getMetaString "flow" msg)
 
 getString :: KeyMap.Key -> Message -> Maybe T.Text
 getString k e =
