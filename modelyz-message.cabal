@@ -19,10 +19,16 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  MyLib
+    exposed-modules:  Message
     -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.16.4.0
+    build-depends:
+        aeson ^>= 2.1,
+        base ^>=4.16.4.0,
+        bytestring,
+        scientific,
+        text,
+        vector
     hs-source-dirs:   src
     default-language: GHC2021
 
@@ -36,4 +42,4 @@ test-suite modelyz-message-test
     main-is:          Main.hs
     build-depends:
         base ^>=4.16.4.0,
-        modelyz-message
+        modelyz-message,
