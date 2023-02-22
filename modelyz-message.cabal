@@ -19,16 +19,19 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  Message
+    exposed-modules:  
+        Message
+        , Ident.Fragment
     -- other-modules:
     -- other-extensions:
     build-depends:
-        aeson ^>= 2.1,
-        base ^>=4.16.4.0,
-        bytestring,
-        scientific,
-        text,
-        vector
+        base ^>=4.16.4.0
+        , aeson ^>= 2.1
+        , bytestring
+        , scientific
+        , time
+        , text
+        , vector
     hs-source-dirs:   src
     default-language: GHC2021
 
