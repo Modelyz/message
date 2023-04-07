@@ -44,5 +44,4 @@ test-suite modelyz-message-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base ^>=4.16.4.0,
-        modelyz-message,
+        base ^>=4.16.4.0
