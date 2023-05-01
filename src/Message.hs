@@ -4,7 +4,8 @@
 module Message where
 
 import Control.Exception (SomeException (SomeException), catch)
-import Data.Aeson as JSON (FromJSON, Options (sumEncoding), SumEncoding (TaggedObject, contentsFieldName, tagFieldName), ToJSON, Value (..), decode, defaultOptions, encode, genericParseJSON, genericToJSON, parseJSON, toJSON)
+import Data.Aeson as JSON (FromJSON, Options (sumEncoding), SumEncoding (TaggedObject, contentsFieldName, tagFieldName), ToJSON, Value (..), decode, defaultOptions, encode, genericParseJSON, genericToJSON, parseJSON, toJSON, withObject, (.:))
+import Data.Aeson.KeyMap qualified as KeyMap
 import Data.Aeson.Types (Parser)
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -18,66 +19,70 @@ import GHC.Generics (Generic)
 import Ident.Fragment (Fragment)
 import Type (Type)
 
-type Uuid = String -- uuid as a string generated in Elm
-
 data MessageFlow = Requested | Sent | Processed
-  deriving (Eq, Generic, Data, Typeable, Show)
+    deriving (Eq, Generic, Data, Typeable, Show)
 
 instance FromJSON MessageFlow where
-  parseJSON :: JSON.Value -> Parser MessageFlow
-  parseJSON = genericParseJSON defaultOptions
+    parseJSON :: JSON.Value -> Parser MessageFlow
+    parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON MessageFlow where
-  toJSON :: MessageFlow -> JSON.Value
-  toJSON = genericToJSON defaultOptions
+    toJSON :: MessageFlow -> JSON.Value
+    toJSON = genericToJSON defaultOptions
 
 -- Message
 
 data Message = Message Metadata Payload
-  deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Message where
-  parseJSON :: JSON.Value -> Parser Message
-  parseJSON = genericParseJSON defaultOptions
+    parseJSON :: JSON.Value -> Parser Message
+    parseJSON value = do
+        p <- (genericParseJSON defaultOptions value :: Parser Payload)
+        m <- withObject "Metadata" (.: "meta") value
+        mm <- (genericParseJSON defaultOptions m :: Parser Metadata)
+        return $ Message mm p
 
 instance ToJSON Message where
-  toJSON :: Message -> JSON.Value
-  toJSON = genericToJSON defaultOptions
+    toJSON :: Message -> JSON.Value
+    toJSON (Message m p) = case genericToJSON defaultOptions p of
+        JSON.Object o -> JSON.Object $ KeyMap.insert "meta" (genericToJSON defaultOptions m) o
+        _ -> JSON.Null
 
 -- Payload
 
 data Payload
-  = InitiatedConnection Connection
-  | AddedIdentifier Identifier
-  deriving (Generic, Data, Typeable, Show)
+    = InitiatedConnection Connection
+    | AddedIdentifier Identifier
+    deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Payload where
-  parseJSON :: JSON.Value -> Parser Payload
-  parseJSON = genericParseJSON $ defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "load"}}
+    parseJSON :: JSON.Value -> Parser Payload
+    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
 
 instance ToJSON Payload where
-  toJSON :: Payload -> JSON.Value
-  toJSON = genericToJSON $ defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "load"}}
+    toJSON :: Payload -> JSON.Value
+    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
 
 newtype Connection = Connection {lastMessageTime :: POSIXTime}
-  deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
+    deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
 
 -- Metadata
 
 data Metadata = Metadata
-  { uuid :: UUID,
-    when :: POSIXTime,
-    flow :: MessageFlow
-  }
-  deriving (Generic, Data, Typeable, Show)
+    { uuid :: UUID
+    , when :: POSIXTime
+    , flow :: MessageFlow
+    }
+    deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Metadata where
-  parseJSON :: JSON.Value -> Parser Metadata
-  parseJSON = genericParseJSON defaultOptions
+    parseJSON :: JSON.Value -> Parser Metadata
+    parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON Metadata where
-  toJSON :: Metadata -> JSON.Value
-  toJSON = genericToJSON defaultOptions
+    toJSON :: Metadata -> JSON.Value
+    toJSON = genericToJSON defaultOptions
 
 metadata :: Message -> Metadata
 metadata (Message m _) = m
@@ -130,20 +135,20 @@ data IdentifierType = IdentifierType
 data ValueType = ValueType
 
 data Identifier = Identifier
-  { what :: Type,
-    for :: UUID,
-    name :: String,
-    fragments :: [Fragment]
-  }
-  deriving (Generic, Data, Typeable, Show)
+    { what :: Type
+    , for :: UUID
+    , name :: String
+    , fragments :: [Fragment]
+    }
+    deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Identifier where
-  parseJSON :: JSON.Value -> Parser Identifier
-  parseJSON = genericParseJSON defaultOptions
+    parseJSON :: JSON.Value -> Parser Identifier
+    parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON Identifier where
-  toJSON :: Identifier -> JSON.Value
-  toJSON = genericToJSON defaultOptions
+    toJSON :: Identifier -> JSON.Value
+    toJSON = genericToJSON defaultOptions
 
 data Value = Value
 
@@ -215,33 +220,33 @@ isProcessed :: Message -> Bool
 isProcessed msg = getFlow msg == Processed
 
 setFlow :: MessageFlow -> Message -> Message
-setFlow flow (Message m p) = Message m {flow = flow} p
+setFlow flow (Message m p) = Message m{flow = flow} p
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f message =
-  -- TODO use decodeUtf8' to avoid errors
-  IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode message) `T.append` "\n"
+    -- TODO use decodeUtf8' to avoid errors
+    IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode message) `T.append` "\n"
 
 -- read the message store
 readMessages :: FilePath -> IO [Message]
 readMessages f =
-  do
-    es <- catch (LBS.readFile f) handleError
-    case mapM JSON.decode (LBS.lines es) of
-      Just evs -> return evs
-      Nothing -> return []
+    do
+        es <- catch (LBS.readFile f) handleError
+        case mapM JSON.decode (LBS.lines es) of
+            Just evs -> return evs
+            Nothing -> return []
   where
     handleError :: SomeException -> IO LBS.ByteString
     handleError (SomeException _) = do
-      putStrLn "Could not read MessageSource"
-      return ""
+        putStrLn "Could not read MessageSource"
+        return ""
 
 getFragments :: Message -> [Fragment]
 getFragments (Message _ p) = case p of
-  AddedIdentifier i -> fragments i
-  _ -> []
+    AddedIdentifier i -> fragments i
+    _ -> []
 
 setFragments :: [Fragment] -> Message -> Message
 setFragments fragments (Message m p) = case p of
-  AddedIdentifier i -> Message m $ AddedIdentifier i {fragments = fragments}
-  _ -> Message m p
+    AddedIdentifier i -> Message m $ AddedIdentifier i{fragments = fragments}
+    _ -> Message m p
