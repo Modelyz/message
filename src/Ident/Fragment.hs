@@ -1,20 +1,17 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Ident.Fragment (Fragment (..), getFragments, setFragments) where
+module Ident.Fragment (Fragment (..)) where
 
-import Data.Aeson as JSON (FromJSON, Result (..), ToJSON, Value (..), fromJSON, object, parseJSON, toJSON, withObject, (.:), (.=))
-import Data.Aeson.KeyMap as KeyMap (alterF, lookup)
+import Data.Aeson as JSON (FromJSON, ToJSON, Value (..), object, parseJSON, toJSON, withObject, (.:), (.=))
 import Data.Aeson.Types (parseFail)
-import qualified Data.Text as T (pack)
+import Data.Data (Data, Typeable)
+import Data.Text qualified as T (pack)
 import Data.Time.Calendar.Month (Month (..))
 import Data.Time.Calendar.WeekDate (DayOfWeek (..))
 import Data.Time.Clock (diffTimeToPicoseconds)
 import Data.Time.Clock.POSIX (POSIXTime)
-import qualified Data.Vector as Vector
 import GHC.Generics
-import Message (Message)
 
 data Fragment
     = Free String
@@ -31,7 +28,7 @@ data Fragment
     | Minute Int
     | Second Int
     | DateFrom String POSIXTime
-    deriving (Generic, Show)
+    deriving (Generic, Data, Typeable, Show)
 
 dowToString :: DayOfWeek -> String
 dowToString dow = case dow of
@@ -107,42 +104,3 @@ instance FromJSON Fragment where
             String "Second" -> Second <$> o .: "value"
             String "DateFrom" -> DateFrom <$> o .: "name" <*> o .: "value"
             _ -> parseFail "Unknown fragment"
-
-getFragments :: Message -> [Fragment]
-getFragments msg =
-    case msg of
-        (JSON.Object o) -> case KeyMap.lookup "load" o of
-            (Just (JSON.Object m)) ->
-                case KeyMap.lookup "fragments" m of
-                    Just (JSON.Array fragments) -> do
-                        result <- fromJSON <$> Vector.toList fragments
-                        case result of
-                            Success f -> [f]
-                            Error _ -> []
-                    _ -> []
-            _ -> []
-        _ -> []
-
-setFragments :: [Fragment] -> Message -> Message
-setFragments fragments message =
-    case message of
-        JSON.Object keymap ->
-            JSON.toJSON $
-                alterF
-                    ( \case
-                        (Just (JSON.Object m)) ->
-                            Just $
-                                Just $
-                                    JSON.toJSON $
-                                        alterF
-                                            ( \case
-                                                (Just _) -> Just $ Just $ JSON.Array $ Vector.fromList $ fmap toJSON fragments
-                                                _ -> Nothing
-                                            )
-                                            "fragments"
-                                            m
-                        _ -> Nothing
-                    )
-                    "load"
-                    keymap
-        _ -> message
