@@ -1,9 +1,10 @@
-module ResourceType (ResourceType) where
+module ResourceType (ResourceType (..)) where
 
 import Data.UUID (UUID)
+import Type (Type)
 
 data ResourceType = ResourceType
-  { what :: HType.Type,
-    uuid :: UUID,
-    parent :: Maybe UUID
-  }
+    { what :: Type
+    , uuid :: UUID
+    , parent :: Maybe UUID
+    }
