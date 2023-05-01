@@ -12,65 +12,72 @@ import Data.Data (Data (toConstr), Typeable)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
-import Data.Time.Clock.POSIX
+import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
-import GHC.Generics
-import Ident.Fragment
+import GHC.Generics (Generic)
+import Ident.Fragment (Fragment)
 import Type (Type)
 
 type Uuid = String -- uuid as a string generated in Elm
 
--- Message
-
 data MessageFlow = Requested | Sent | Processed
-    deriving (Eq, Generic, Data, Typeable, Show)
+  deriving (Eq, Generic, Data, Typeable, Show)
 
 instance FromJSON MessageFlow where
-    parseJSON :: JSON.Value -> Parser MessageFlow
-    parseJSON = genericParseJSON defaultOptions
+  parseJSON :: JSON.Value -> Parser MessageFlow
+  parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON MessageFlow where
-    toJSON = genericToJSON defaultOptions
+  toJSON :: MessageFlow -> JSON.Value
+  toJSON = genericToJSON defaultOptions
+
+-- Message
 
 data Message = Message Metadata Payload
-    deriving (Generic, Data, Typeable, Show)
-
-instance FromJSON Payload where
-    parseJSON :: JSON.Value -> Parser Payload
-    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
-
-instance ToJSON Payload where
-    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
-
-data Payload
-    = InitiatedConnection Connection
-    | AddedIdentifier Identifier
-    deriving (Generic, Data, Typeable, Show)
+  deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Message where
-    parseJSON :: JSON.Value -> Parser Message
-    parseJSON = genericParseJSON defaultOptions
+  parseJSON :: JSON.Value -> Parser Message
+  parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON Message where
-    toJSON = genericToJSON defaultOptions
+  toJSON :: Message -> JSON.Value
+  toJSON = genericToJSON defaultOptions
+
+-- Payload
+
+data Payload
+  = InitiatedConnection Connection
+  | AddedIdentifier Identifier
+  deriving (Generic, Data, Typeable, Show)
+
+instance FromJSON Payload where
+  parseJSON :: JSON.Value -> Parser Payload
+  parseJSON = genericParseJSON $ defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "load"}}
+
+instance ToJSON Payload where
+  toJSON :: Payload -> JSON.Value
+  toJSON = genericToJSON $ defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "load"}}
 
 newtype Connection = Connection {lastMessageTime :: POSIXTime}
-    deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
+  deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
 
 -- Metadata
 
 data Metadata = Metadata
-    { uuid :: UUID
-    , when :: POSIXTime
-    , flow :: MessageFlow
-    }
-    deriving (Generic, Data, Typeable, Show)
+  { uuid :: UUID,
+    when :: POSIXTime,
+    flow :: MessageFlow
+  }
+  deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Metadata where
-    parseJSON = genericParseJSON defaultOptions
+  parseJSON :: JSON.Value -> Parser Metadata
+  parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON Metadata where
-    toJSON = genericToJSON defaultOptions
+  toJSON :: Metadata -> JSON.Value
+  toJSON = genericToJSON defaultOptions
 
 metadata :: Message -> Metadata
 metadata (Message m _) = m
@@ -78,7 +85,7 @@ metadata (Message m _) = m
 payload :: Message -> Payload
 payload (Message _ p) = p
 
--- payloads
+-- payloads as class
 
 -- class Payload p where
 --    toString :: p -> String
@@ -88,55 +95,6 @@ payload (Message _ p) = p
 --    toString _ = "InitiatedConnection"
 
 -- data Payload = AddedIdentifier Identifier | InitiatedConnection Connection
-
-{-plop :: String -> Either String (a -> Payload)
-plop m =
-  case m of
-    "InitiatedConnection" -> Right InitiatedConnection
-    "AddedResourceType" -> Right AddedResourceType
-    "RemovedResourceType" -> Right RemovedResourceType
-    "AddedEventType" -> Right AddedEventType
-    "RemovedEventType" -> Right RemovedEventType
-    "AddedAgentType" -> Right AddedAgentType
-    "RemovedAgentType" -> Right RemovedAgentType
-    "AddedCommitmentType" -> Right AddedCommitmentType
-    "RemovedCommitmentType" -> Right RemovedCommitmentType
-    "AddedContractType" -> Right AddedContractType
-    "RemovedContractType" -> Right RemovedContractType
-    "AddedProcessType" -> Right AddedProcessType
-    "RemovedProcessType" -> Right RemovedProcessType
-    "AddedResource" -> Right AddedResource
-    "RemovedResource" -> Right RemovedResource
-    "AddedEvent" -> Right AddedEvent
-    "RemovedEvent" -> Right RemovedEvent
-    "AddedAgent" -> Right AddedAgent
-    "RemovedAgent" -> Right RemovedAgent
-    "AddedCommitment" -> Right AddedCommitment
-    "RemovedCommitment" -> Right RemovedCommitment
-    "AddedContract" -> Right AddedContract
-    "RemovedContract" -> Right RemovedContract
-    "AddedProcess" -> Right AddedProcess
-    "RemovedProcess" -> Right RemovedProcess
-    "AddedIdentifierType" -> Right AddedIdentifierType
-    "ChangedIdentifierType" -> Right ChangedIdentifierType
-    "RemovedIdentifierType" -> Right RemovedIdentifierType
-    "AddedIdentifier" -> Right AddedIdentifier
-    "AddedValueType" -> Right AddedValueType
-    "ChangedValueType" -> Right ChangedValueType
-    "RemovedValueType" -> Right RemovedValueType
-    "AddedValue" -> Right AddedValue
-    "Configured" -> Right Configured
-    "Unconfigured" -> Right Unconfigured
-    "AddedGroupType" -> Right AddedGroupType
-    "RemovedGroupType" -> Right RemovedGroupType
-    "DefinedGroup" -> Right DefinedGroup
-    "RemovedGroup" -> Right RemovedGroup
-    "Grouped" -> Right Grouped
-    "Ungrouped" -> Right Ungrouped
-    "Reconciled" -> Right Reconciled
-    "Unreconciled" -> Right Unreconciled
-    _ -> Left "Unknown Message Type"
--}
 
 data ResourceType = ResourceType
 
@@ -172,18 +130,20 @@ data IdentifierType = IdentifierType
 data ValueType = ValueType
 
 data Identifier = Identifier
-    { what :: Type
-    , for :: UUID
-    , name :: String
-    , fragments :: [Fragment]
-    }
-    deriving (Generic, Data, Typeable, Show)
+  { what :: Type,
+    for :: UUID,
+    name :: String,
+    fragments :: [Fragment]
+  }
+  deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Identifier where
-    parseJSON = genericParseJSON defaultOptions
+  parseJSON :: JSON.Value -> Parser Identifier
+  parseJSON = genericParseJSON defaultOptions
 
 instance ToJSON Identifier where
-    toJSON = genericToJSON defaultOptions
+  toJSON :: Identifier -> JSON.Value
+  toJSON = genericToJSON defaultOptions
 
 data Value = Value
 
@@ -193,7 +153,7 @@ data GroupLink = GroupLink
 
 data Reconciliation = Reconciliation
 
-{-data Payload2
+{-data Payload
     = InitiatedConnection Connection
     | AddedResourceType ResourceType
     | RemovedResourceType Uuid
@@ -255,33 +215,33 @@ isProcessed :: Message -> Bool
 isProcessed msg = getFlow msg == Processed
 
 setFlow :: MessageFlow -> Message -> Message
-setFlow flow (Message m p) = Message m{flow = flow} p
+setFlow flow (Message m p) = Message m {flow = flow} p
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f message =
-    -- TODO use decodeUtf8' to avoid errors
-    IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode message) `T.append` "\n"
+  -- TODO use decodeUtf8' to avoid errors
+  IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode message) `T.append` "\n"
 
 -- read the message store
 readMessages :: FilePath -> IO [Message]
 readMessages f =
-    do
-        es <- catch (LBS.readFile f) handleError
-        case mapM JSON.decode (LBS.lines es) of
-            Just evs -> return evs
-            Nothing -> return []
+  do
+    es <- catch (LBS.readFile f) handleError
+    case mapM JSON.decode (LBS.lines es) of
+      Just evs -> return evs
+      Nothing -> return []
   where
     handleError :: SomeException -> IO LBS.ByteString
     handleError (SomeException _) = do
-        putStrLn "Could not read MessageSource"
-        return ""
+      putStrLn "Could not read MessageSource"
+      return ""
 
 getFragments :: Message -> [Fragment]
 getFragments (Message _ p) = case p of
-    AddedIdentifier i -> fragments i
-    _ -> []
+  AddedIdentifier i -> fragments i
+  _ -> []
 
 setFragments :: [Fragment] -> Message -> Message
 setFragments fragments (Message m p) = case p of
-    AddedIdentifier i -> Message m $ AddedIdentifier i{fragments = fragments}
-    _ -> Message m p
+  AddedIdentifier i -> Message m $ AddedIdentifier i {fragments = fragments}
+  _ -> Message m p
