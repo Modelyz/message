@@ -4,7 +4,21 @@ import Data.Aeson (FromJSON, ToJSON (..), defaultOptions, genericParseJSON, gene
 import Data.Data (Data, Typeable)
 import GHC.Generics
 
-data Type = Resource | Event | Agent | Commitment | Contract | Process | Group
+data Type
+    = ResourceType
+    | EventType
+    | AgentType
+    | CommitmentType
+    | ContractType
+    | ProcessType
+    | GroupType
+    | Resource
+    | Event
+    | Agent
+    | Commitment
+    | Contract
+    | Process
+    | Group
     deriving (Generic, Data, Typeable, Show)
 
 instance FromJSON Type where

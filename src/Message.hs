@@ -38,9 +38,9 @@ data Message = Message Metadata Payload
 instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
     parseJSON value = do
-        p <- (genericParseJSON defaultOptions value :: Parser Payload)
         m <- withObject "Metadata" (.: "meta") value
-        mm <- (genericParseJSON defaultOptions m :: Parser Metadata)
+        p <- JSON.parseJSON value :: Parser Payload
+        mm <- JSON.parseJSON m :: Parser Metadata
         return $ Message mm p
 
 instance ToJSON Message where
@@ -58,11 +58,11 @@ data Payload
 
 instance FromJSON Payload where
     parseJSON :: JSON.Value -> Parser Payload
-    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
+    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
 
 instance ToJSON Payload where
     toJSON :: Payload -> JSON.Value
-    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "load"}}
+    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
 
 newtype Connection = Connection {lastMessageTime :: POSIXTime}
     deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
