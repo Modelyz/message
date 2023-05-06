@@ -19,7 +19,7 @@ data Type
     | Contract
     | Process
     | Group
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Ord, Eq)
 
 instance FromJSON Type where
     parseJSON = genericParseJSON defaultOptions

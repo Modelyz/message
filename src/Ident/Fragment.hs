@@ -28,7 +28,7 @@ data Fragment
     | Minute Int
     | Second Int
     | DateFrom String POSIXTime
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 dowToString :: DayOfWeek -> String
 dowToString dow = case dow of

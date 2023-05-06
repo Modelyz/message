@@ -10,6 +10,7 @@ import Data.Aeson.Types (Parser)
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
+import Data.Set as Set (Set)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
@@ -20,7 +21,7 @@ import Ident.Fragment (Fragment)
 import Type (Type)
 
 data MessageFlow = Requested | Sent | Processed
-    deriving (Eq, Generic, Data, Typeable, Show)
+    deriving (Eq, Generic, Data, Typeable, Ord, Show)
 
 instance FromJSON MessageFlow where
     parseJSON :: JSON.Value -> Parser MessageFlow
@@ -33,15 +34,14 @@ instance ToJSON MessageFlow where
 -- Message
 
 data Message = Message Metadata Payload
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
     parseJSON value = do
-        m <- withObject "Metadata" (.: "meta") value
-        p <- JSON.parseJSON value :: Parser Payload
-        mm <- JSON.parseJSON m :: Parser Metadata
-        return $ Message mm p
+        meta <- (JSON.parseJSON =<< withObject "Metadata" (.: "meta") value) :: Parser Metadata
+        payl <- JSON.parseJSON value :: Parser Payload
+        return $ Message meta payl
 
 instance ToJSON Message where
     toJSON :: Message -> JSON.Value
@@ -54,7 +54,7 @@ instance ToJSON Message where
 data Payload
     = InitiatedConnection Connection
     | AddedIdentifier Identifier
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Payload where
     parseJSON :: JSON.Value -> Parser Payload
@@ -64,8 +64,18 @@ instance ToJSON Payload where
     toJSON :: Payload -> JSON.Value
     toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
 
-newtype Connection = Connection {lastMessageTime :: POSIXTime}
-    deriving (Generic, Data, Typeable, Show, FromJSON, ToJSON)
+-- Connection
+
+data Connection = Connection {lastMessageTime :: POSIXTime, uuids :: Set UUID}
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+
+instance FromJSON Connection where
+    parseJSON :: JSON.Value -> Parser Connection
+    parseJSON = genericParseJSON defaultOptions
+
+instance ToJSON Connection where
+    toJSON :: Connection -> JSON.Value
+    toJSON = genericToJSON defaultOptions
 
 -- Metadata
 
@@ -74,7 +84,7 @@ data Metadata = Metadata
     , when :: POSIXTime
     , flow :: MessageFlow
     }
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Metadata where
     parseJSON :: JSON.Value -> Parser Metadata
@@ -140,7 +150,7 @@ data Identifier = Identifier
     , name :: String
     , fragments :: [Fragment]
     }
-    deriving (Generic, Data, Typeable, Show)
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Identifier where
     parseJSON :: JSON.Value -> Parser Identifier
@@ -204,11 +214,11 @@ data Reconciliation = Reconciliation
     | Unreconciled Reconciliation
 -}
 
-isType :: T.Text -> Message -> Bool
-isType t (Message _ p) = t == T.pack (show $ toConstr p)
+isType :: Message -> T.Text -> Bool
+isType (Message _ p) t = t == T.pack (show $ toConstr p)
 
 excludeType :: T.Text -> [Message] -> [Message]
-excludeType t = filter (not . isType t)
+excludeType t = filter (not . (`isType` t))
 
 isAfter :: POSIXTime -> Message -> Bool
 isAfter t msg = when (metadata msg) > t
