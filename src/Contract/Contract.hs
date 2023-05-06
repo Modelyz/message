@@ -4,10 +4,7 @@ import Data.Aeson (FromJSON, ToJSON, defaultOptions, genericParseJSON, genericTo
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
-import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
-import Expression (Expression)
-import Flow (Flow)
 import GHC.Generics (Generic)
 import Type (Type)
 
