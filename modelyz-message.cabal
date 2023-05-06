@@ -20,9 +20,45 @@ common warnings
 library
     import:           warnings
     exposed-modules:  
-        Message
+        Agent.Agent
+        , AgentType.AgentType
+        , Commitment.Commitment
+        , CommitmentType.CommitmentType
+        , Configuration
+        , Configuration.Zone
+        , Connection
+        , Contract.Contract
+        , ContractType.ContractType
+        , Event.Event
+        , EventType.EventType
+        , Expression
+        , Expression.Binary
+        , Expression.Deeplink
+        , Expression.HardLink
+        , Expression.Observable
+        , Expression.Unary
+        , Expression.ValueSelection
+        , Flow
+        , Group.Group
+        , Group.Link
+        , GroupType.GroupType
         , Ident.Fragment
+        , Ident.Identification
+        , Ident.Identifier
+        , Ident.IdentifierType
+        , Message
+        , MessageFlow
+        , Process.Process
+        , Process.Reconcile
+        , ProcessType.ProcessType
+        , Resource.Resource
+        , ResourceType.ResourceType
+        , Scope
+        , Tree
         , Type
+        , Value.Value
+        , Value.ValueType
+
     -- other-modules:
     -- other-extensions:
     build-depends:

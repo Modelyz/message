@@ -3,35 +3,44 @@
 
 module Message where
 
+import Agent.Agent (Agent)
+import AgentType.AgentType (AgentType)
+import Commitment.Commitment (Commitment)
+import CommitmentType.CommitmentType (CommitmentType)
+import Configuration (Configuration)
+import Connection
+import Contract.Contract (Contract)
+import ContractType.ContractType (ContractType)
 import Control.Exception (SomeException (SomeException), catch)
-import Data.Aeson as JSON (FromJSON, Options (sumEncoding), SumEncoding (TaggedObject, contentsFieldName, tagFieldName), ToJSON, Value (..), decode, defaultOptions, encode, genericParseJSON, genericToJSON, parseJSON, toJSON, withObject, (.:))
+import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON, withObject, (.:))
+import Data.Aeson qualified as JSON
 import Data.Aeson.KeyMap qualified as KeyMap
-import Data.Aeson.Types (Parser)
+import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
-import Data.Set as Set (Set)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
 import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
+import Event.Event (Event)
+import EventType.EventType (EventType)
 import GHC.Generics (Generic)
+import Group.Group (Group)
+import Group.Link as GroupLink (Link)
+import GroupType.GroupType (GroupType)
 import Ident.Fragment (Fragment)
-import Type (Type)
-
-data MessageFlow = Requested | Sent | Processed
-    deriving (Eq, Generic, Data, Typeable, Ord, Show)
-
-instance FromJSON MessageFlow where
-    parseJSON :: JSON.Value -> Parser MessageFlow
-    parseJSON = genericParseJSON defaultOptions
-
-instance ToJSON MessageFlow where
-    toJSON :: MessageFlow -> JSON.Value
-    toJSON = genericToJSON defaultOptions
-
--- Message
+import Ident.Identifier (Identifier, fragments)
+import Ident.IdentifierType (IdentifierType)
+import MessageFlow
+import Process.Process (Process)
+import Process.Reconcile (Reconciliation)
+import ProcessType.ProcessType (ProcessType)
+import Resource.Resource (Resource)
+import ResourceType.ResourceType (ResourceType)
+import Value.Value (Value)
+import Value.ValueType (ValueType)
 
 data Message = Message Metadata Payload
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
@@ -49,33 +58,8 @@ instance ToJSON Message where
         JSON.Object o -> JSON.Object $ KeyMap.insert "meta" (genericToJSON defaultOptions m) o
         _ -> JSON.Null
 
--- Payload
-
-data Payload
-    = InitiatedConnection Connection
-    | AddedIdentifier Identifier
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-instance FromJSON Payload where
-    parseJSON :: JSON.Value -> Parser Payload
-    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
-
-instance ToJSON Payload where
-    toJSON :: Payload -> JSON.Value
-    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
-
--- Connection
-
-data Connection = Connection {lastMessageTime :: POSIXTime, uuids :: Set UUID}
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-instance FromJSON Connection where
-    parseJSON :: JSON.Value -> Parser Connection
-    parseJSON = genericParseJSON defaultOptions
-
-instance ToJSON Connection where
-    toJSON :: Connection -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+payload :: Message -> Payload
+payload (Message _ p) = p
 
 -- Metadata
 
@@ -97,103 +81,34 @@ instance ToJSON Metadata where
 metadata :: Message -> Metadata
 metadata (Message m _) = m
 
-payload :: Message -> Payload
-payload (Message _ p) = p
+-- Payload
 
--- payloads as class
-
--- class Payload p where
---    toString :: p -> String
---
--- instance Payload InitiatedConnection where
---    toString :: InitiatedConnection -> String
---    toString _ = "InitiatedConnection"
-
--- data Payload = AddedIdentifier Identifier | InitiatedConnection Connection
-
-data ResourceType = ResourceType
-
-data EventType = EventType
-
-data AgentType = AgentType
-
-data CommitmentType = CommitmentType
-
-data ContractType = ContractType
-
-data ProcessType = ProcessType
-
-data GroupType = GroupType
-
-{-
-data Resource = Resource
-
-data Event = Event
-
-data Agent = Agent
-
-data Commitment = Commitment
-
-data Process = Process
-
-data Group = Groupe
-
-data Contract = Contract
--}
-data IdentifierType = IdentifierType
-
-data ValueType = ValueType
-
-data Identifier = Identifier
-    { what :: Type
-    , for :: UUID
-    , name :: String
-    , fragments :: [Fragment]
-    }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-instance FromJSON Identifier where
-    parseJSON :: JSON.Value -> Parser Identifier
-    parseJSON = genericParseJSON defaultOptions
-
-instance ToJSON Identifier where
-    toJSON :: Identifier -> JSON.Value
-    toJSON = genericToJSON defaultOptions
-
-data Value = Value
-
-data Configuration = Configuration
-
-data GroupLink = GroupLink
-
-data Reconciliation = Reconciliation
-
-{-data Payload
+data Payload
     = InitiatedConnection Connection
     | AddedResourceType ResourceType
-    | RemovedResourceType Uuid
+    | RemovedResourceType UUID
     | AddedEventType EventType
-    | RemovedEventType Uuid
+    | RemovedEventType UUID
     | AddedAgentType AgentType
-    | RemovedAgentType Uuid
+    | RemovedAgentType UUID
     | AddedCommitmentType CommitmentType
-    | RemovedCommitmentType Uuid
+    | RemovedCommitmentType UUID
     | AddedContractType ContractType
-    | RemovedContractType Uuid
+    | RemovedContractType UUID
     | AddedProcessType ProcessType
-    | RemovedProcessType Uuid
+    | RemovedProcessType UUID
     | AddedResource Resource
-    | RemovedResource Uuid
+    | RemovedResource UUID
     | AddedEvent Event
-    | RemovedEvent Uuid
+    | RemovedEvent UUID
     | AddedAgent Agent
-    | RemovedAgent Uuid
+    | RemovedAgent UUID
     | AddedCommitment Commitment
-    | RemovedCommitment Uuid
+    | RemovedCommitment UUID
     | AddedContract Contract
-    | RemovedContract Uuid
+    | RemovedContract UUID
     | AddedProcess Process
-    | RemovedProcess Uuid
+    | RemovedProcess UUID
     | AddedIdentifierType IdentifierType
     | ChangedIdentifierType IdentifierType IdentifierType
     | RemovedIdentifierType IdentifierType
@@ -205,14 +120,22 @@ data Reconciliation = Reconciliation
     | Configured Configuration
     | Unconfigured Configuration
     | AddedGroupType GroupType
-    | RemovedGroupType Uuid
+    | RemovedGroupType UUID
     | DefinedGroup Group
-    | RemovedGroup Uuid
-    | Grouped GroupLink
-    | Ungrouped GroupLink
+    | RemovedGroup UUID
+    | Grouped GroupLink.Link
+    | Ungrouped GroupLink.Link
     | Reconciled Reconciliation
     | Unreconciled Reconciliation
--}
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+
+instance FromJSON Payload where
+    parseJSON :: JSON.Value -> Parser Payload
+    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
+
+instance ToJSON Payload where
+    toJSON :: Payload -> JSON.Value
+    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
 
 isType :: Message -> T.Text -> Bool
 isType (Message _ p) t = t == T.pack (show $ toConstr p)
