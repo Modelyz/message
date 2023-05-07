@@ -49,7 +49,7 @@ instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
     parseJSON value = do
         meta <- (JSON.parseJSON =<< withObject "Metadata" (.: "meta") value) :: Parser Metadata
-        payl <- JSON.parseJSON value :: Parser Payload
+        payl <- (JSON.parseJSON =<< withObject "Payload" (.: "load") value) :: Parser Payload
         return $ Message meta payl
 
 instance ToJSON Message where
@@ -110,7 +110,7 @@ data Payload
     | AddedProcess Process
     | RemovedProcess UUID
     | AddedIdentifierType IdentifierType
-    | ChangedIdentifierType IdentifierType IdentifierType
+    | ChangedIdentifierType {old :: IdentifierType, new :: IdentifierType}
     | RemovedIdentifierType IdentifierType
     | AddedIdentifier Identifier
     | AddedValueType ValueType
