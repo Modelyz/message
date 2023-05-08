@@ -28,8 +28,8 @@ data Fragment
 
 instance FromJSON Fragment where
   parseJSON :: JSON.Value -> Parser Fragment
-  parseJSON = genericParseJSON defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}
+  parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}} {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Fragment where
   toJSON :: Fragment -> JSON.Value
-  toJSON = genericToJSON defaultOptions {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}
+  toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}} {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}

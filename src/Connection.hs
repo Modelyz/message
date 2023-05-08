@@ -13,8 +13,8 @@ data Connection = Connection {lastMessageTime :: POSIXTime, uuids :: Set UUID}
 
 instance FromJSON Connection where
     parseJSON :: JSON.Value -> Parser Connection
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Connection where
     toJSON :: Connection -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

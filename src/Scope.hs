@@ -20,7 +20,7 @@ data Scope
       Anything
     | -- A set with a single item of type Type:
       IsItem Type UUID
-    | -- the set of items of type Type whose type_ or parent is child of a precise user type
+    | -- the set of items of type Type whose what or parent is child of a precise user type
       HasUserType Type UUID
     | -- The set of items with a specific concrete type:
       HasType Type

@@ -1,7 +1,6 @@
 module Expression where
 
-import Data.Aeson as JSON (FromJSON (parseJSON), ToJSON (toJSON), defaultOptions, genericParseJSON, genericToJSON)
-import Data.Aeson qualified as JSON
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Expression.Binary as B
@@ -11,14 +10,14 @@ import GHC.Generics (Generic)
 
 data Expression
     = Leaf Observable
-    | Unary U.Operator Expression
-    | Binary B.Operator Expression Expression
+    | Unary {uop :: U.Operator, expr :: Expression}
+    | Binary {bop :: B.Operator, expr1 :: Expression, expr2 :: Expression}
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Expression where
     parseJSON :: JSON.Value -> Parser Expression
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Expression where
     toJSON :: Expression -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

@@ -1,7 +1,6 @@
 module Expression.HardLink where
 
-import Data.Aeson as JSON (FromJSON (parseJSON), ToJSON (toJSON), defaultOptions, genericParseJSON, genericToJSON)
-import Data.Aeson qualified as JSON
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import GHC.Generics (Generic)
@@ -26,11 +25,11 @@ data HardLink
 
 instance FromJSON HardLink where
     parseJSON :: JSON.Value -> Parser HardLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON HardLink where
     toJSON :: HardLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ResourceLink
     = -- Groups of type Uuid
@@ -41,11 +40,11 @@ data ResourceLink
 
 instance FromJSON ResourceLink where
     parseJSON :: JSON.Value -> Parser ResourceLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ResourceLink where
     toJSON :: ResourceLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 data EventLink
     = EventProvider
     | EventReceiver
@@ -57,11 +56,11 @@ data EventLink
 
 instance FromJSON EventLink where
     parseJSON :: JSON.Value -> Parser EventLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON EventLink where
     toJSON :: EventLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data AgentLink
     = AgentGroup
@@ -70,11 +69,11 @@ data AgentLink
 
 instance FromJSON AgentLink where
     parseJSON :: JSON.Value -> Parser AgentLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON AgentLink where
     toJSON :: AgentLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data CommitmentLink
     = CommitmentProvider
@@ -87,11 +86,11 @@ data CommitmentLink
 
 instance FromJSON CommitmentLink where
     parseJSON :: JSON.Value -> Parser CommitmentLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON CommitmentLink where
     toJSON :: CommitmentLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ContractLink
     = ContractGroup
@@ -100,11 +99,11 @@ data ContractLink
 
 instance FromJSON ContractLink where
     parseJSON :: JSON.Value -> Parser ContractLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ContractLink where
     toJSON :: ContractLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ProcessLink
     = ProcessGroup
@@ -113,11 +112,11 @@ data ProcessLink
 
 instance FromJSON ProcessLink where
     parseJSON :: JSON.Value -> Parser ProcessLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ProcessLink where
     toJSON :: ProcessLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data GroupLink
     = GroupGroup
@@ -127,11 +126,11 @@ data GroupLink
 
 instance FromJSON GroupLink where
     parseJSON :: JSON.Value -> Parser GroupLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON GroupLink where
     toJSON :: GroupLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ResourceTypeLink
     = ResourceTypeGroup
@@ -140,11 +139,11 @@ data ResourceTypeLink
 
 instance FromJSON ResourceTypeLink where
     parseJSON :: JSON.Value -> Parser ResourceTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ResourceTypeLink where
     toJSON :: ResourceTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data EventTypeLink
     = EventTypeProvider
@@ -157,11 +156,11 @@ data EventTypeLink
 
 instance FromJSON EventTypeLink where
     parseJSON :: JSON.Value -> Parser EventTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON EventTypeLink where
     toJSON :: EventTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data AgentTypeLink
     = AgentTypeGroup
@@ -170,11 +169,11 @@ data AgentTypeLink
 
 instance FromJSON AgentTypeLink where
     parseJSON :: JSON.Value -> Parser AgentTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON AgentTypeLink where
     toJSON :: AgentTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data CommitmentTypeLink
     = CommitmentTypeProvider
@@ -187,11 +186,11 @@ data CommitmentTypeLink
 
 instance FromJSON CommitmentTypeLink where
     parseJSON :: JSON.Value -> Parser CommitmentTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON CommitmentTypeLink where
     toJSON :: CommitmentTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ContractTypeLink
     = ContractTypeGroup
@@ -200,11 +199,11 @@ data ContractTypeLink
 
 instance FromJSON ContractTypeLink where
     parseJSON :: JSON.Value -> Parser ContractTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ContractTypeLink where
     toJSON :: ContractTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data ProcessTypeLink
     = ProcessTypeGroup
@@ -213,11 +212,11 @@ data ProcessTypeLink
 
 instance FromJSON ProcessTypeLink where
     parseJSON :: JSON.Value -> Parser ProcessTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON ProcessTypeLink where
     toJSON :: ProcessTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 data GroupTypeLink
     = GroupTypeGroup
@@ -226,8 +225,8 @@ data GroupTypeLink
 
 instance FromJSON GroupTypeLink where
     parseJSON :: JSON.Value -> Parser GroupTypeLink
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON GroupTypeLink where
     toJSON :: GroupTypeLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

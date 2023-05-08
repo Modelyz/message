@@ -1,7 +1,8 @@
 module Configuration where
 
 import Configuration.Zone (Zone)
-import Data.Aeson as JSON (FromJSON (parseJSON), ToJSON (toJSON), Value, defaultOptions, genericParseJSON, genericToJSON)
+
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.UUID (UUID)
@@ -12,14 +13,14 @@ import Type (Type)
 
 data Configuration
     = -- the list of identifier types to display on each zone
-      ZoneDisplay Zone [Fragment] Scope
-    | MenuDisplay Type UUID Bool
+      ZoneDisplay {zone :: Zone, fragments :: [Fragment], scope :: Scope}
+    | MenuDisplay {what :: Type, uuid :: UUID, isMenu :: Bool}
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Configuration where
     parseJSON :: JSON.Value -> Parser Configuration
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Configuration where
     toJSON :: Configuration -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

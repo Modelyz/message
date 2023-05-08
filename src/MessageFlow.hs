@@ -1,6 +1,6 @@
 module MessageFlow where
 
-import Data.Aeson
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.Text (Text)

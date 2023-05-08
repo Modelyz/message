@@ -1,7 +1,6 @@
 module EventType.EventType where
 
-import Data.Aeson (FromJSON, ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
-import Data.Aeson qualified as JSON
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.UUID (UUID)
@@ -23,8 +22,8 @@ data EventType = EventType
 
 instance FromJSON EventType where
     parseJSON :: JSON.Value -> Parser EventType
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON EventType where
     toJSON :: EventType -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

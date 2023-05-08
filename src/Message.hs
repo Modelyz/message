@@ -69,11 +69,11 @@ data Metadata = Metadata
 
 instance FromJSON Metadata where
     parseJSON :: JSON.Value -> Parser Metadata
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Metadata where
     toJSON :: Metadata -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 metadata :: Message -> Metadata
 metadata (Message m _) = m

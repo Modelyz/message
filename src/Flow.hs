@@ -1,7 +1,6 @@
 module Flow where
 
-import Data.Aeson (FromJSON, ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
-import Data.Aeson qualified as JSON
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import GHC.Generics (Generic)
@@ -15,8 +14,8 @@ data Flow
 
 instance FromJSON Flow where
     parseJSON :: JSON.Value -> Parser Flow
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Flow where
     toJSON :: Flow -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

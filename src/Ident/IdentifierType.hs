@@ -1,6 +1,6 @@
 module Ident.IdentifierType where
 
-import Data.Aeson as JSON (FromJSON (parseJSON), ToJSON (toJSON), Value, defaultOptions, genericParseJSON, genericToJSON)
+import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.Text (Text)
@@ -20,8 +20,8 @@ data IdentifierType = IdentifierType
 
 instance FromJSON IdentifierType where
     parseJSON :: JSON.Value -> Parser IdentifierType
-    parseJSON = genericParseJSON defaultOptions
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON IdentifierType where
     toJSON :: IdentifierType -> JSON.Value
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}

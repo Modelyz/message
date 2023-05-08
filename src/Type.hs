@@ -3,7 +3,7 @@
 
 module Type where
 
-import Data.Aeson (FromJSON, ToJSON (..), defaultOptions, genericToJSON, parseJSON)
+import Data.Aeson
 import Data.Data (Data, Typeable)
 import GHC.Generics
 
@@ -43,4 +43,4 @@ instance FromJSON Type where
         _ -> fail "Invalid REA Type"
 
 instance ToJSON Type where
-    toJSON = genericToJSON defaultOptions
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
