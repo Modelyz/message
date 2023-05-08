@@ -14,7 +14,6 @@ import ContractType.ContractType (ContractType)
 import Control.Exception (SomeException (SomeException), catch)
 import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON, withObject, (.:))
 import Data.Aeson qualified as JSON
-import Data.Aeson.KeyMap qualified as KeyMap
 import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -54,9 +53,7 @@ instance FromJSON Message where
 
 instance ToJSON Message where
     toJSON :: Message -> JSON.Value
-    toJSON (Message m p) = case genericToJSON defaultOptions p of
-        JSON.Object o -> JSON.Object $ KeyMap.insert "meta" (genericToJSON defaultOptions m) o
-        _ -> JSON.Null
+    toJSON (Message m p) = JSON.object [("meta", toJSON m), ("load", toJSON p)]
 
 payload :: Message -> Payload
 payload (Message _ p) = p
