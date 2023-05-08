@@ -41,17 +41,30 @@ instance FromJSON Scope where
             "Scope"
             ( \o -> do
                 s <- o .: "scope" :: Parser Text
-                v <- o .: "value"
                 case s of
                     "Empty" -> return Empty
                     "Anything" -> return Anything
-                    "IsItem" -> IsItem <$> v .: "type" <*> v .: "uuid"
-                    "HasUserType" -> HasUserType <$> v .: "type" <*> v .: "uuid"
-                    "HasType" -> HasType <$> v .: "type"
-                    "And" -> And <$> v .: "scope1" <*> v .: "scope2"
-                    "Or" -> Or <$> v .: "scope1" <*> v .: "scope2"
-                    "Not" -> Not <$> v .: "value"
-                    "Identified" -> Identified <$> v .: "value"
+                    "IsItem" -> do
+                        v <- o .: "value"
+                        IsItem <$> v .: "type" <*> v .: "uuid"
+                    "HasUserType" -> do
+                        v <- o .: "value"
+                        HasUserType <$> v .: "type" <*> v .: "uuid"
+                    "HasType" -> do
+                        t <- o .: "value"
+                        HasType <$> parseJSON t
+                    "And" -> do
+                        v <- o .: "value"
+                        And <$> v .: "scope1" <*> v .: "scope2"
+                    "Or" -> do
+                        v <- o .: "value"
+                        Or <$> v .: "scope1" <*> v .: "scope2"
+                    "Not" -> do
+                        v <- o .: "value"
+                        Not <$> v .: "value"
+                    "Identified" -> do
+                        v <- o .: "value"
+                        Identified <$> v .: "value"
                     _ -> fail "Invalid Scope"
             )
 
