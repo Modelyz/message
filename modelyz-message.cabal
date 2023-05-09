@@ -26,6 +26,7 @@ library
         , CommitmentType.CommitmentType
         , Configuration
         , Configuration.Zone
+        , Configuration.Zone.Fragment
         , Connection
         , Contract.Contract
         , ContractType.ContractType

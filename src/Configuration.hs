@@ -2,12 +2,12 @@ module Configuration where
 
 import Configuration.Zone (Zone)
 
+import Configuration.Zone.Fragment (Fragment)
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
-import Ident.Fragment (Fragment)
 import Scope (Scope)
 import Type (Type)
 

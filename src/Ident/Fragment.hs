@@ -10,26 +10,26 @@ import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics
 
 data Fragment
-  = Free Text
-  | Fixed Text
-  | Sequence {name :: Text, padding :: Int, step :: Int, start :: Int, val :: Maybe Int}
-  | Existing {name :: Text, value :: Text}
-  | YYYY Int
-  | YY Int
-  | MMMM Month
-  | MM Month
-  | Weekday DayOfWeek
-  | DoM Int
-  | Hour Int
-  | Minute Int
-  | Second Int
-  | DateFrom {field :: Text, when :: POSIXTime}
-  deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    = Free Text
+    | Fixed Text
+    | Sequence {name :: Text, padding :: Int, step :: Int, start :: Int, val :: Maybe Int}
+    | Existing {name :: Text, value :: Text}
+    | YYYY Int
+    | YY Int
+    | MMMM Month
+    | MM Month
+    | Weekday DayOfWeek
+    | DoM Int
+    | Hour Int
+    | Minute Int
+    | Second Int
+    | DateFrom {field :: Text, when :: POSIXTime}
+    deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Fragment where
-  parseJSON :: JSON.Value -> Parser Fragment
-  parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}} {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON :: JSON.Value -> Parser Fragment
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 instance ToJSON Fragment where
-  toJSON :: Fragment -> JSON.Value
-  toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}} {sumEncoding = TaggedObject {tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON :: Fragment -> JSON.Value
+    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
