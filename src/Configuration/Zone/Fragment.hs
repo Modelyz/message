@@ -15,7 +15,7 @@ data Fragment
       IdentifierName {name :: Name}
     | GroupIdentifierName {scope :: Scope, name :: Name {- to display the name of a group of the entity -}}
     | Parent
-    | Fixed String
+    | Fixed {string :: Name}
     | Quantity
     | Flow
     | Provider
