@@ -40,28 +40,18 @@ instance FromJSON Scope where
         withObject
             "Scope"
             ( \o -> do
-                s <- o .: "scope" :: Parser Text
+                s <- o .: "type" :: Parser Text
                 case s of
                     "Empty" -> return Empty
                     "Anything" -> return Anything
-                    "IsItem" -> do
-                        v <- o .: "value"
-                        IsItem <$> v .: "type" <*> v .: "uuid"
-                    "HasUserType" -> do
-                        v <- o .: "value"
-                        HasUserType <$> v .: "type" <*> v .: "uuid"
+                    "IsItem" -> IsItem <$> o .: "what" <*> o .: "uuid"
+                    "HasUserType" -> HasUserType <$> o .: "what" <*> o .: "uuid"
                     "HasType" -> do
-                        t <- o .: "value"
+                        t <- o .: "what"
                         HasType <$> parseJSON t
-                    "And" -> do
-                        v <- o .: "value"
-                        And <$> v .: "scope1" <*> v .: "scope2"
-                    "Or" -> do
-                        v <- o .: "value"
-                        Or <$> v .: "scope1" <*> v .: "scope2"
-                    "Not" -> do
-                        v <- o .: "value"
-                        Not <$> v .: "value"
+                    "And" -> And <$> o .: "scope1" <*> o .: "scope2"
+                    "Or" -> Or <$> o .: "scope1" <*> o .: "scope2"
+                    "Not" -> Not <$> o .: "scope"
                     "Identified" -> do
                         v <- o .: "value"
                         Identified <$> v .: "value"
@@ -73,12 +63,12 @@ instance ToJSON Scope where
     toJSON scope =
         let constr = show $ toConstr scope
          in case scope of
-                Empty -> JSON.object ["scope" .= constr]
-                Anything -> JSON.object ["scope" .= constr]
-                IsItem what uuid -> JSON.object ["scope" .= constr, "value" .= JSON.object ["what" .= what, "uuid" .= uuid]]
-                HasUserType what uuid -> JSON.object ["scope" .= constr, "value" .= JSON.object ["what" .= what, "uuid" .= uuid]]
-                HasType what -> JSON.object ["scope" .= constr, "value" .= what]
-                And scope1 scope2 -> JSON.object ["scope" .= constr, "value" .= [toJSON scope1, toJSON scope2]]
-                Or scope1 scope2 -> JSON.object ["scope" .= constr, "value" .= [toJSON scope1, toJSON scope2]]
-                Not s -> JSON.object ["scope" .= constr, "value" .= toJSON s]
-                Identified ident -> JSON.object ["scope" .= constr, "value" .= toJSON ident]
+                Empty -> JSON.object ["type" .= constr]
+                Anything -> JSON.object ["type" .= constr]
+                IsItem what uuid -> JSON.object ["type" .= constr, "what" .= what, "uuid" .= uuid]
+                HasUserType what uuid -> JSON.object ["type" .= constr, "what" .= what, "uuid" .= uuid]
+                HasType what -> JSON.object ["type" .= constr, "what" .= what]
+                And scope1 scope2 -> JSON.object ["type" .= constr, "scope1" .= toJSON scope1, "scpe1" .= toJSON scope2]
+                Or scope1 scope2 -> JSON.object ["type" .= constr, "scope1" .= toJSON scope1, "scpe1" .= toJSON scope2]
+                Not s -> JSON.object ["type" .= constr, "scope" .= toJSON s]
+                Identified ident -> JSON.object ["type" .= constr, "value" .= toJSON ident]
