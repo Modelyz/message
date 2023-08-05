@@ -63,6 +63,7 @@ payload (Message _ p) = p
 data Metadata = Metadata
     { uuid :: UUID
     , when :: POSIXTime
+    , which :: T.Text
     , flow :: MessageFlow
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
@@ -151,6 +152,9 @@ isProcessed msg = getFlow msg == Processed
 
 setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
+
+setCreator :: T.Text -> Message -> Message
+setCreator creator (Message m p) = Message m{which = creator} p
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f message =

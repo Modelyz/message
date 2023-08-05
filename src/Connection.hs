@@ -8,7 +8,10 @@ import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 
-data Connection = Connection {lastMessageTime :: POSIXTime, uuids :: Set UUID}
+data Connection = Connection
+    { lastMessageTime :: POSIXTime
+    , uuids :: Set UUID
+    }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
 instance FromJSON Connection where
