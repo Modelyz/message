@@ -1,4 +1,4 @@
-module Connection where
+module Connection (Connection (..)) where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)

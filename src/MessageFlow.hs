@@ -6,7 +6,11 @@ import Data.Data (Data, Typeable)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
-data MessageFlow = Requested | Sent | Processed | Error Text
+data MessageFlow
+    = Requested
+    | Received
+    | Processed
+    | Error Text
     deriving (Eq, Generic, Data, Typeable, Ord, Show)
 
 instance FromJSON MessageFlow where

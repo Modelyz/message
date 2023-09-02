@@ -18,6 +18,7 @@ import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
+import Data.Set as Set (Set, delete, insert)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
@@ -44,6 +45,8 @@ import Value.ValueType (ValueType)
 data Message = Message Metadata Payload
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
+type Destination = String
+
 instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
     parseJSON value = do
@@ -63,7 +66,7 @@ payload (Message _ p) = p
 data Metadata = Metadata
     { uuid :: UUID
     , when :: POSIXTime
-    , which :: T.Text
+    , from :: T.Text
     , flow :: MessageFlow
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
@@ -147,19 +150,17 @@ isAfter t msg = when (metadata msg) > t
 getFlow :: Message -> MessageFlow
 getFlow = flow . metadata
 
-isProcessed :: Message -> Bool
-isProcessed msg = getFlow msg == Processed
-
 setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
 
 setCreator :: T.Text -> Message -> Message
-setCreator creator (Message m p) = Message m{which = creator} p
+setCreator creator (Message m p) = Message m{from = creator} p
 
 appendMessage :: FilePath -> Message -> IO ()
-appendMessage f message =
+appendMessage f msg = do
     -- TODO use decodeUtf8' to avoid errors
-    IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode message) `T.append` "\n"
+    IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode msg) `T.append` "\n"
+    putStrLn $ "\nStored this message: " ++ show msg
 
 -- read the message store
 readMessages :: FilePath -> IO [Message]
