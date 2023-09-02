@@ -18,7 +18,6 @@ import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
-import Data.Set as Set (Set, delete, insert)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
