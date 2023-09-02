@@ -8,7 +8,6 @@ import GHC.Generics (Generic)
 
 data MessageFlow
     = Requested
-    | Received
     | Processed
     | Error Text
     deriving (Eq, Generic, Data, Typeable, Ord, Show)
