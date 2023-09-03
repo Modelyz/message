@@ -158,7 +158,7 @@ setCreator creator (Message m p) = Message m{from = creator} p
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f msg = do
     -- TODO use decodeUtf8' to avoid errors
-    IO.appendFile f $ decodeUtf8 (toStrict $ JSON.encode msg) `T.append` "\n"
+    IO.appendFile f $! decodeUtf8 (toStrict $ JSON.encode msg) `T.append` "\n"
     putStrLn $ "\nStored this message: " ++ show msg
 
 -- read the message store
