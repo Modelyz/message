@@ -33,6 +33,7 @@ import Ident.Fragment (Fragment)
 import Ident.Identifier (Identifier, fragments)
 import Ident.IdentifierType (IdentifierType)
 import MessageFlow
+import Metadata (Metadata, Origin, flow, from, when)
 import Process.Process (Process)
 import Process.Reconcile (Reconciliation)
 import ProcessType.ProcessType (ProcessType)
@@ -43,8 +44,6 @@ import Value.ValueType (ValueType)
 
 data Message = Message Metadata Payload
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-type Destination = String
 
 instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
@@ -59,24 +58,6 @@ instance ToJSON Message where
 
 payload :: Message -> Payload
 payload (Message _ p) = p
-
--- Metadata
-
-data Metadata = Metadata
-    { uuid :: UUID
-    , when :: POSIXTime
-    , from :: T.Text
-    , flow :: MessageFlow
-    }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-instance FromJSON Metadata where
-    parseJSON :: JSON.Value -> Parser Metadata
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
-
-instance ToJSON Metadata where
-    toJSON :: Metadata -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
 
 metadata :: Message -> Metadata
 metadata (Message m _) = m
@@ -152,7 +133,7 @@ getFlow = flow . metadata
 setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
 
-setCreator :: T.Text -> Message -> Message
+setCreator :: Origin -> Message -> Message
 setCreator creator (Message m p) = Message m{from = creator} p
 
 appendMessage :: FilePath -> Message -> IO ()
