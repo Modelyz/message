@@ -18,7 +18,7 @@ import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
-import Data.List.NonEmpty qualified as NonEmpty
+import Data.List qualified as List
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
@@ -34,7 +34,7 @@ import Ident.Fragment (Fragment)
 import Ident.Identifier (Identifier, fragments)
 import Ident.IdentifierType (IdentifierType)
 import MessageFlow
-import Metadata (Metadata, Origin, flow, from, when)
+import Metadata (Metadata, Origin, flow, from, uuid, when)
 import Process.Process (Process)
 import Process.Reconcile (Reconciliation)
 import ProcessType.ProcessType (ProcessType)
@@ -56,6 +56,11 @@ instance FromJSON Message where
 instance ToJSON Message where
     toJSON :: Message -> JSON.Value
     toJSON (Message m p) = JSON.object [("meta", toJSON m), ("load", toJSON p)]
+
+type MessageId = (UUID, MessageFlow)
+
+messageId :: Metadata -> MessageId
+messageId m = (Metadata.uuid m, flow m)
 
 payload :: Message -> Payload
 payload (Message _ p) = p
@@ -135,16 +140,16 @@ setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
 
 setCreator :: Origin -> Message -> Message
-setCreator origin (Message m p) = Message m{from = NonEmpty.singleton origin} p
+setCreator origin (Message m p) = Message m{from = List.singleton origin} p
 
 creator :: Message -> Origin
-creator = NonEmpty.head . from . metadata
+creator = head . from . metadata
 
 setVisited :: Origin -> Message -> Message
-setVisited origin (Message m p) = Message m{from = NonEmpty.appendList (from m) [origin]} p
+setVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
 
 lastVisited :: Message -> Origin
-lastVisited = NonEmpty.last . from . metadata
+lastVisited = last . from . metadata
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f msg = do
