@@ -18,6 +18,7 @@ import Data.Aeson.Types (Parser, SumEncoding (..))
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
+import Data.List.NonEmpty qualified as NonEmpty
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
@@ -134,7 +135,16 @@ setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
 
 setCreator :: Origin -> Message -> Message
-setCreator creator (Message m p) = Message m{from = creator} p
+setCreator origin (Message m p) = Message m{from = NonEmpty.singleton origin} p
+
+creator :: Message -> Origin
+creator = NonEmpty.head . from . metadata
+
+setVisited :: Origin -> Message -> Message
+setVisited origin (Message m p) = Message m{from = NonEmpty.appendList (from m) [origin]} p
+
+lastVisited :: Message -> Origin
+lastVisited = NonEmpty.last . from . metadata
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f msg = do
