@@ -49,6 +49,7 @@ library
         , Ident.IdentifierType
         , Message
         , MessageFlow
+        , MessageId
         , Metadata
         , Process.Process
         , Process.Reconcile

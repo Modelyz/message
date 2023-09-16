@@ -5,13 +5,12 @@ import Data.Aeson.Types (Parser)
 import Data.Data (Data, Typeable)
 import Data.Set as Set (Set)
 import Data.Time.Clock.POSIX (POSIXTime)
-import Data.UUID (UUID)
 import GHC.Generics (Generic)
-import MessageFlow (MessageFlow)
+import MessageId (MessageId)
 
 data Connection = Connection
     { lastMessageTime :: POSIXTime
-    , uuids :: Set (UUID, MessageFlow)
+    , uuids :: Set MessageId
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 

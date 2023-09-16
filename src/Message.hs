@@ -34,7 +34,7 @@ import Ident.Fragment (Fragment)
 import Ident.Identifier (Identifier, fragments)
 import Ident.IdentifierType (IdentifierType)
 import MessageFlow
-import Metadata (Metadata, Origin, flow, from, uuid, when)
+import Metadata (Metadata, Origin, flow, from, when)
 import Process.Process (Process)
 import Process.Reconcile (Reconciliation)
 import ProcessType.ProcessType (ProcessType)
@@ -56,11 +56,6 @@ instance FromJSON Message where
 instance ToJSON Message where
     toJSON :: Message -> JSON.Value
     toJSON (Message m p) = JSON.object [("meta", toJSON m), ("load", toJSON p)]
-
-type MessageId = (UUID, MessageFlow)
-
-messageId :: Metadata -> MessageId
-messageId m = (Metadata.uuid m, flow m)
 
 payload :: Message -> Payload
 payload (Message _ p) = p
