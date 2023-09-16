@@ -3,8 +3,6 @@
 OPT_DEVEL='--ghc-options="-Wall"'
 OPT_OPTIMIZE=' -O2 --ghc-options="-Wall" --enable-library-stripping'
 
-set -xe
-
 pushd $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 which cabal-cache && cabal-cache sync-from-archive --archive-uri ~/.cabal/archive

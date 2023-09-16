@@ -138,19 +138,19 @@ setCreator :: Origin -> Message -> Message
 setCreator origin (Message m p) = Message m{from = List.singleton origin} p
 
 creator :: Message -> Origin
-creator = head . from . metadata
+creator = head . from . metadata -- maybe reconsider NonEmpty
 
-setVisited :: Origin -> Message -> Message
-setVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
+addVisited :: Origin -> Message -> Message
+addVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
 
 lastVisited :: Message -> Origin
-lastVisited = last . from . metadata
+lastVisited = last . from . metadata -- maybe reconsider NonEmpty
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f msg = do
     -- TODO use decodeUtf8' to avoid errors
     IO.appendFile f $! decodeUtf8 (toStrict $ JSON.encode msg) `T.append` "\n"
-    putStrLn $ "\nStored this message: " ++ show msg
+    putStrLn "Message stored"
 
 -- read the message store
 readMessages :: FilePath -> IO [Message]
