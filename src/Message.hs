@@ -143,6 +143,9 @@ creator = head . from . metadata -- maybe reconsider NonEmpty
 addVisited :: Origin -> Message -> Message
 addVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
 
+dropLastVisited :: Message -> Message
+dropLastVisited (Message m p) = Message m{from = reverse $ drop 1 $ reverse $ from m} p
+
 lastVisited :: Message -> Origin
 lastVisited = last . from . metadata -- maybe reconsider NonEmpty
 
