@@ -14,8 +14,8 @@ data MessageFlow
 
 instance FromJSON MessageFlow where
     parseJSON :: Value -> Parser MessageFlow
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON defaultOptions{sumEncoding = UntaggedValue}
 
 instance ToJSON MessageFlow where
     toJSON :: MessageFlow -> Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON defaultOptions{sumEncoding = UntaggedValue}

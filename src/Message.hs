@@ -34,12 +34,13 @@ import Ident.Fragment (Fragment)
 import Ident.Identifier (Identifier, fragments)
 import Ident.IdentifierType (IdentifierType)
 import MessageFlow
-import Metadata (Metadata, Origin, flow, from, when)
+import Metadata (Metadata, flow, from, when)
 import Process.Process (Process)
 import Process.Reconcile (Reconciliation)
 import ProcessType.ProcessType (ProcessType)
 import Resource.Resource (Resource)
 import ResourceType.ResourceType (ResourceType)
+import Service (Service)
 import Value.Value (Value)
 import Value.ValueType (ValueType)
 
@@ -134,19 +135,19 @@ getFlow = flow . metadata
 setFlow :: MessageFlow -> Message -> Message
 setFlow flow (Message m p) = Message m{flow = flow} p
 
-setCreator :: Origin -> Message -> Message
+setCreator :: Service -> Message -> Message
 setCreator origin (Message m p) = Message m{from = List.singleton origin} p
 
-creator :: Message -> Origin
+creator :: Message -> Service
 creator = head . from . metadata -- maybe reconsider NonEmpty
 
-addVisited :: Origin -> Message -> Message
+addVisited :: Service -> Message -> Message
 addVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
 
 dropLastVisited :: Message -> Message
 dropLastVisited (Message m p) = Message m{from = reverse $ drop 1 $ reverse $ from m} p
 
-lastVisited :: Message -> Origin
+lastVisited :: Message -> Service
 lastVisited = last . from . metadata -- maybe reconsider NonEmpty
 
 appendMessage :: FilePath -> Message -> IO ()

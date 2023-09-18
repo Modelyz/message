@@ -57,6 +57,7 @@ library
         , Resource.Resource
         , ResourceType.ResourceType
         , Scope
+        , Service
         , Tree
         , Type
         , Value.Value
