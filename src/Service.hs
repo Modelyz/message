@@ -22,6 +22,7 @@ data Service
     = None -- find a way to initialize an undefined MVar
     | Front
     | Studio
+    | Dumb
     | Store
     | Ident
     deriving (Generic, Data, Typeable, Show, Eq, Ord)

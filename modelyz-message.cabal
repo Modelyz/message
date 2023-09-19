@@ -51,6 +51,7 @@ library
         , MessageFlow
         , MessageId
         , Metadata
+        , Payload
         , Process.Process
         , Process.Reconcile
         , ProcessType.ProcessType

@@ -3,18 +3,10 @@
 
 module Message where
 
-import Agent.Agent (Agent)
-import AgentType.AgentType (AgentType)
-import Commitment.Commitment (Commitment)
-import CommitmentType.CommitmentType (CommitmentType)
-import Configuration (Configuration)
-import Connection
-import Contract.Contract (Contract)
-import ContractType.ContractType (ContractType)
 import Control.Exception (SomeException (SomeException), catch)
-import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON, withObject, (.:))
+import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON, withObject, (.:))
 import Data.Aeson qualified as JSON
-import Data.Aeson.Types (Parser, SumEncoding (..))
+import Data.Aeson.Types (Parser)
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data (Data (toConstr), Typeable)
@@ -23,26 +15,14 @@ import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
 import Data.Time.Clock.POSIX (POSIXTime)
-import Data.UUID (UUID)
-import Event.Event (Event)
-import EventType.EventType (EventType)
 import GHC.Generics (Generic)
-import Group.Group (Group)
-import Group.Link as GroupLink (Link)
-import GroupType.GroupType (GroupType)
 import Ident.Fragment (Fragment)
-import Ident.Identifier (Identifier, fragments)
-import Ident.IdentifierType (IdentifierType)
+import Ident.Identifier (fragments)
 import MessageFlow
-import Metadata (Metadata, flow, from, when)
-import Process.Process (Process)
-import Process.Reconcile (Reconciliation)
-import ProcessType.ProcessType (ProcessType)
-import Resource.Resource (Resource)
-import ResourceType.ResourceType (ResourceType)
+import MessageId (MessageId)
+import Metadata (Metadata, flow, from, uuid, when)
+import Payload (Payload (..))
 import Service (Service)
-import Value.Value (Value)
-import Value.ValueType (ValueType)
 
 data Message = Message Metadata Payload
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
@@ -64,61 +44,8 @@ payload (Message _ p) = p
 metadata :: Message -> Metadata
 metadata (Message m _) = m
 
--- Payload
-
-data Payload
-    = InitiatedConnection Connection
-    | AddedResourceType ResourceType
-    | RemovedResourceType UUID
-    | AddedEventType EventType
-    | RemovedEventType UUID
-    | AddedAgentType AgentType
-    | RemovedAgentType UUID
-    | AddedCommitmentType CommitmentType
-    | RemovedCommitmentType UUID
-    | AddedContractType ContractType
-    | RemovedContractType UUID
-    | AddedProcessType ProcessType
-    | RemovedProcessType UUID
-    | AddedResource Resource
-    | RemovedResource UUID
-    | AddedEvent Event
-    | RemovedEvent UUID
-    | AddedAgent Agent
-    | RemovedAgent UUID
-    | AddedCommitment Commitment
-    | RemovedCommitment UUID
-    | AddedContract Contract
-    | RemovedContract UUID
-    | AddedProcess Process
-    | RemovedProcess UUID
-    | AddedIdentifierType IdentifierType
-    | ChangedIdentifierType {old :: IdentifierType, new :: IdentifierType}
-    | RemovedIdentifierType IdentifierType
-    | AddedIdentifier Identifier
-    | AddedValueType ValueType
-    | ChangedValueType ValueType ValueType
-    | RemovedValueType ValueType
-    | AddedValue Value
-    | Configured Configuration
-    | Unconfigured Configuration
-    | AddedGroupType GroupType
-    | RemovedGroupType UUID
-    | DefinedGroup Group
-    | RemovedGroup UUID
-    | Grouped GroupLink.Link
-    | Ungrouped GroupLink.Link
-    | Reconciled Reconciliation
-    | Unreconciled Reconciliation
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
-
-instance FromJSON Payload where
-    parseJSON :: JSON.Value -> Parser Payload
-    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
-
-instance ToJSON Payload where
-    toJSON :: Payload -> JSON.Value
-    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
+messageId :: Message -> MessageId
+messageId (Message m _) = (uuid m, flow m)
 
 isType :: Message -> T.Text -> Bool
 isType (Message _ p) t = t == T.pack (show $ toConstr p)
