@@ -18,7 +18,7 @@ import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics (Generic)
 import Ident.Fragment (Fragment)
 import Ident.Identifier (fragments)
-import MessageFlow
+import MessageFlow (MessageFlow)
 import MessageId (MessageId)
 import Metadata (Metadata, flow, from, uuid, when)
 import Payload (Payload (..))
