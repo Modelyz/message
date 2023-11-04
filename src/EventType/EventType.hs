@@ -15,7 +15,7 @@ data EventType = EventType
     , parent :: Maybe UUID
     , providers :: Scope
     , receivers :: Scope
-    , flowscope :: Scope
+    , resources :: Scope
     , qty :: Expression
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)

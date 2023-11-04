@@ -88,9 +88,11 @@ readMessages :: FilePath -> IO [Message]
 readMessages f =
     do
         es <- catch (LBS.readFile f) handleError
-        case mapM JSON.decode (LBS.lines es) of
-            Just evs -> return evs
-            Nothing -> return []
+        case mapM JSON.eitherDecode (LBS.lines es) of
+            Right evs -> return evs
+            Left err -> do
+                putStrLn err
+                return []
   where
     handleError :: SomeException -> IO LBS.ByteString
     handleError (SomeException _) = do
