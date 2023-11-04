@@ -15,7 +15,7 @@ data CommitmentType = CommitmentType
     , parent :: Maybe UUID
     , providers :: Scope
     , receivers :: Scope
-    , resources :: Scope
+    , flowscope :: Scope
     , qty :: Expression
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
