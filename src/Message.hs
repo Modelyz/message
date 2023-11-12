@@ -7,8 +7,8 @@ import Control.Exception (SomeException (SomeException), catch)
 import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON, withObject, (.:))
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser)
-import Data.ByteString.Lazy (toStrict)
-import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy (fromStrict, toStrict)
 import Data.Data (Data (toConstr), Typeable)
 import Data.List qualified as List
 import Data.Text qualified as T
@@ -87,14 +87,14 @@ appendMessage f msg = do
 readMessages :: FilePath -> IO [Message]
 readMessages f =
     do
-        es <- catch (LBS.readFile f) handleError
-        case mapM JSON.eitherDecode (LBS.lines es) of
+        es <- catch (BS.readFile f) handleError
+        case mapM JSON.eitherDecode $ fromStrict <$> BS.lines es of
             Right evs -> return evs
             Left err -> do
                 putStrLn err
                 return []
   where
-    handleError :: SomeException -> IO LBS.ByteString
+    handleError :: SomeException -> IO BS.ByteString
     handleError (SomeException _) = do
         putStrLn "Could not read MessageSource"
         return ""
