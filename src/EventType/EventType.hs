@@ -16,6 +16,7 @@ data EventType = EventType
     , providers :: Scope
     , receivers :: Scope
     , resources :: Scope
+    , createResource :: Bool
     , qty :: Expression
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)

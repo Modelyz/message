@@ -11,7 +11,6 @@ data ResourceType = ResourceType
     { what :: Type
     , uuid :: UUID
     , parent :: Maybe UUID
-    , createdByEvent :: Bool
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
