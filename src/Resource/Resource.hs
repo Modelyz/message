@@ -11,6 +11,7 @@ data Resource = Resource
     { what :: Type
     , uuid :: UUID
     , type_ :: UUID
+    , qty :: Rational
     }
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
 
