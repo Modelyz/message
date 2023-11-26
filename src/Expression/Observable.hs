@@ -9,7 +9,8 @@ import Expression.ValueSelection (ValueSelection)
 import GHC.Generics (Generic)
 
 data Observable
-    = ObsNumber {name :: T.Text, input :: T.Text}
+    = Constant Rational
+    | Variable {name :: T.Text, input :: T.Text}
     | ObsValue ValueSelection
     | ObsLink DeepLink
     deriving (Generic, Data, Typeable, Show, Eq, Ord)
